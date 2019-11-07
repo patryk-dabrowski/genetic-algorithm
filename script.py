@@ -1,5 +1,5 @@
 from utils import generate_matrix, bin_to_dec, find_m, normalize_x, rastrigin
-from methods import SelectMethod, RankingMethod, TournamentMethod
+from methods import RouletteMethod, RankingMethod, TournamentMethod
 
 
 def main():
@@ -16,7 +16,9 @@ def main():
     ]
 
     population = generate_population(n_dimension, a, b, d, il, arr_n)
-    select_max = SelectMethod(population=population, is_min=False)
+
+    roulette_max = RouletteMethod(population=population, is_min=False)
+    roulette_min = RouletteMethod(population=population, is_min=True)
     ranking_max = RankingMethod(population=population, is_min=False)
     ranking_min = RankingMethod(population=population, is_min=True)
     tournament_without_return_max = TournamentMethod(population=population, is_min=False, without_return=True)
@@ -25,7 +27,9 @@ def main():
     tournament_with_return_min = TournamentMethod(population=population, is_min=True, without_return=False)
 
     # Debug section
-    print("Metoda selekcji MAX", select_max.calc())
+    print("Population", population)
+    print("Metoda ruletki MAX", roulette_max.calc())
+    print("Metoda ruletki MIN", roulette_min.calc())
     print("Metoda rankingowa MAX", ranking_max.calc())
     print("Metoda rankingowa MIN", ranking_min.calc())
     print("Metoda turniejowa bez zwracania MAX", tournament_without_return_max.calc())
@@ -34,9 +38,7 @@ def main():
     print("Metoda turniejowa zwracania MIN", tournament_with_return_min.calc())
 
 
-def generate_population(
-    n_dimension: int, a: int, b: int, d: int, il: int, arr_n: list
-) -> list:
+def generate_population(n_dimension: int, a: int, b: int, d: int, il: int, arr_n: list) -> list:
     sum_m = 0
     final_array = []
     for i in range(n_dimension):

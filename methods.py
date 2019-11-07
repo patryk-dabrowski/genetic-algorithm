@@ -11,17 +11,22 @@ class Methods:
         raise NotImplementedError("Method calc is not implemented")
 
 
-class SelectMethod(Methods):
+class RouletteMethod(Methods):
     def set_fit_attribute(self) -> None:
         self.population = [{"fit": p} for p in self.population]
 
-    def calc_sum_of_fit(self) -> float:
-        return sum([p["fit"] for p in self.population])
-
-    def calc_probability(self) -> None:
-        sum_of_fit = self.calc_sum_of_fit()
+    def set_min_fit_attribute(self) -> None:
+        max_value = max([p["fit"] for p in self.population])
         for p in self.population:
-            p["probability"] = p["fit"] / sum_of_fit
+            p["min_fit"] = max_value - p["fit"] + 1
+
+    def calc_sum_of_fit(self, type_of_fit: str = "fit") -> float:
+        return sum([p[type_of_fit] for p in self.population])
+
+    def calc_probability(self, type_of_fit: str) -> None:
+        sum_of_fit = self.calc_sum_of_fit(type_of_fit)
+        for p in self.population:
+            p["probability"] = p[type_of_fit] / sum_of_fit
 
     def cumulative_distribution(self) -> None:
         cum_dist = 0
@@ -30,8 +35,11 @@ class SelectMethod(Methods):
             p["q"] = cum_dist
 
     def calc(self) -> list:
+        type_of_fit = "min_fit" if self.is_min else "fit"
         self.set_fit_attribute()
-        self.calc_probability()
+        if self.is_min:
+            self.set_min_fit_attribute()
+        self.calc_probability(type_of_fit)
         self.cumulative_distribution()
 
         out = []
@@ -58,7 +66,7 @@ class RankingMethod(Methods):
 
 
 class TournamentMethod(Methods):
-    def __init__(self, population: list, is_min: bool = False, without_return=False):
+    def __init__(self, population: list, is_min: bool = False, without_return: bool = False):
         super(TournamentMethod, self).__init__(population=population, is_min=is_min)
         self.without_return = without_return
 
@@ -71,9 +79,7 @@ class TournamentMethod(Methods):
             while len(group) < j:
                 rand_index = random.choice(range(self.il))
                 single_person = self.population[rand_index]
-                if not self.without_return or (
-                    self.without_return and single_person not in group
-                ):
+                if not self.without_return or (self.without_return and single_person not in group):
                     group.append(single_person)
             chosen_person = min(group) if self.is_min else max(group)
             out.append(chosen_person)
