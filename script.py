@@ -79,7 +79,7 @@ def generate_population(n_dimension: int, a: int, b: int, d: int, il: int, arr_n
         # print()
     # print("List of x; result of rastrigin function")
     # [print(a, "f(x)=", r) for a, r in zip(final_array, [rastrigin(a) for a in final_array])]
-    return [rastrigin(a) for a in final_array]
+    return [{"eval": rastrigin(a)} for a in final_array]
 
 
 if __name__ == "__main__":
