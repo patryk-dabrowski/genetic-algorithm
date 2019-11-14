@@ -51,7 +51,7 @@ class RouletteMethod(Methods):
                 if r <= p["q"]:
                     break
             out.append(chosen)
-        return [{"eval": o["eval"]} for o in out]
+        return [{"eval": o["eval"], "chromosomes": o["chromosomes"]} for o in out]
 
 
 class RankingMethod(Methods):
@@ -62,7 +62,7 @@ class RankingMethod(Methods):
             rand_first_num = random.choice(range(1, self.il + 1))
             rand_index = random.choice(range(rand_first_num))
             out.append(population[rand_index])
-        return [{"eval": o["eval"]} for o in out]
+        return [{"eval": o["eval"], "chromosomes": o["chromosomes"]} for o in out]
 
 
 class TournamentMethod(Methods):
@@ -83,4 +83,4 @@ class TournamentMethod(Methods):
                     group.append(single_person)
             chosen_person = min(group, key=lambda p: p["eval"]) if self.is_min else max(group, key=lambda p: p["eval"])
             out.append(chosen_person)
-        return [{"eval": o["eval"]} for o in out]
+        return [{"eval": o["eval"], "chromosomes": o["chromosomes"]} for o in out]

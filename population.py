@@ -11,7 +11,6 @@ class Population:
         self.arr_n = arr_n
 
     def generate_population(self) -> list:
-        sum_m = 0
         final_array = []
         final_matrix = []
         for i in range(self.n_dimension):
@@ -24,10 +23,8 @@ class Population:
 
                 self.arr_n[i].update({"a": _a, "b": _b, "d": _d, "m": m})
 
-                sum_m += m
             except IndexError:
                 m = find_m(self.a, self.b, self.d)
-                sum_m += m
                 self.arr_n.append({"m": m, "a": self.a, "b": self.b, "d": self.d})
 
         self.arr_n = self.arr_n[:self.n_dimension]

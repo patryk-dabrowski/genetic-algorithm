@@ -1,5 +1,9 @@
-from methods import RouletteMethod, RankingMethod, TournamentMethod
 from population import Population
+
+
+def debug_population(population):
+    for p in population:
+        print([chromosome["gens"] for chromosome in p["chromosomes"]])
 
 
 def main():
@@ -17,17 +21,10 @@ def main():
 
     population = (Population(n_dimension, a, b, d, il, arr_n)).generate_population()
 
-    roulette_max = RouletteMethod(population=population, is_min=False)
-    roulette_min = RouletteMethod(population=population, is_min=True)
-    ranking_max = RankingMethod(population=population, is_min=False)
-    ranking_min = RankingMethod(population=population, is_min=True)
-    tournament_without_return_max = TournamentMethod(population=population, is_min=False, without_return=True)
-    tournament_without_return_min = TournamentMethod(population=population, is_min=True, without_return=True)
-    tournament_with_return_max = TournamentMethod(population=population, is_min=False, without_return=False)
-    tournament_with_return_min = TournamentMethod(population=population, is_min=True, without_return=False)
-
     # Debug section
     print("Population", population)
+    debug_population(population)
+    print()
 
 
 if __name__ == "__main__":
