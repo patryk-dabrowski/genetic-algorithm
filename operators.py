@@ -7,18 +7,23 @@ class Mutation:
         self.population = population
         self.pm = 0.1
 
-    def calc(self):
+    def execute(self):
         population = copy.deepcopy(self.population)
+        out_population = []
         for p in population:
+            is_changed = False
             for chromosome in p["chromosomes"]:
                 gens = []
                 for gen in chromosome["gens"]:
                     r = random.random()
                     if r < self.pm:
                         gen = 0 if gen == 1 else 1
+                        is_changed = True
                     gens.append(gen)
                 chromosome["gens"] = gens
-        return population
+            if is_changed:
+                out_population.append(p)
+        return out_population
 
 
 class Inversion:
@@ -26,8 +31,9 @@ class Inversion:
         self.population = population
         self.pi = 0.1
 
-    def calc(self):
+    def execute(self):
         population = copy.deepcopy(self.population)
+        out_population = []
         for p in population:
             r = random.random()
             if r < self.pi:
@@ -47,11 +53,12 @@ class Inversion:
                 for chromosome in p["chromosomes"]:
                     chromosome["gens"] = new_gens[:chromosome["m"]]
                     new_gens = new_gens[chromosome["m"]:]
-        return population
+                out_population.append(p)
+        return out_population
 
 
 class Crossover:
-    def __init__(self, population):
+    def __init__(self, population, *args, **kwargs):
         self.population = copy.deepcopy(population)
         self.pk = 0.5
         self.pairs = []
@@ -85,16 +92,17 @@ class Crossover:
     def execute(self):
         self.select_pairs()
         self.calc()
+        out_population = []
         for pair in self.pairs:
-            self.population.append(pair[0])
-            self.population.append(pair[1])
-        return self.population
+            out_population.append(pair[0])
+            out_population.append(pair[1])
+        return out_population
 
 
 class KPointCrossover(Crossover):
-    def __init__(self, population, n=None):
-        super().__init__(population)
-        self.n = n
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.k = kwargs.get("k", None)
 
     def calc(self):
         for pair in self.pairs:
@@ -102,15 +110,15 @@ class KPointCrossover(Crossover):
             gens_one = self.sum_attribute(pair[0]["chromosomes"], "gens", [])
             gens_two = self.sum_attribute(pair[1]["chromosomes"], "gens", [])
 
-            if not self.n:
-                self.n = random.randint(1, sum_m - 1)
+            if not self.k:
+                self.k = random.randint(1, sum_m - 1)
 
             new_gens_one = []
             new_gens_two = []
             rand_points = [0]
-            for _ in range(self.n):
+            for _ in range(self.k):
                 last_element = rand_points[len(rand_points) - 1]
-                r = random.randint(last_element + 1, sum_m - self.n + len(rand_points) - 1)
+                r = random.randint(last_element + 1, sum_m - self.k + len(rand_points) - 1)
                 rand_points.append(r)
             for i in range(1, len(rand_points)):
                 start_point = rand_points[i - 1]

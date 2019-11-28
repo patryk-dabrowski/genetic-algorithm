@@ -1,4 +1,39 @@
-from utils import generate_matrix, bin_to_dec, find_m, normalize_x, rastrigin
+import math
+import random
+
+
+def generate_matrix(m: int, il: int) -> list:
+    matrix_n_m = []
+    for i in range(il):
+        matrix_n_m.append([random.choice([0, 1]) for _ in range(m)])
+    return matrix_n_m
+
+
+def bin_to_dec(arr: list) -> int:
+    out = []
+    for i in range(len(arr)):
+        curr_index = len(arr) - i - 1
+        curr_item = arr[curr_index]
+        out.append(curr_item * pow(2, curr_index))
+    return sum(out)
+
+
+def find_m(a: int, b: int, d: int) -> int:
+    volume_size = (b - a) * pow(10, d)
+    m = 0
+    while not (volume_size <= pow(2, m)):
+        m += 1
+    return m
+
+
+def normalize_x(x: int, a: int, b: int, m: int) -> float:
+    return a + (b - a) * x / (pow(2, m) - 1)
+
+
+def rastrigin(arr: list) -> float:
+    a = 10
+    w = 20 * math.pi
+    return a * len(arr) + sum([pow(x, 2) - a * math.cos(w * x) for x in arr])
 
 
 class Population:
@@ -33,24 +68,27 @@ class Population:
             generated_matrix = generate_matrix(curr_arr["m"], self.il)
             final_matrix.append(generated_matrix)
 
-            converted_bin_to_dec = [bin_to_dec(a) for a in generated_matrix]
-            normalized_array = [
-                normalize_x(x, curr_arr["a"], curr_arr["b"], curr_arr["m"])
-                for x in converted_bin_to_dec
-            ]
-
-            for index, item in enumerate(normalized_array):
-                if index < len(final_array):
-                    final_array[index].append(item)
-                else:
-                    final_array.append([item])
-        final_array = [{"eval": rastrigin(a)} for a in final_array]
-
         for i, curr_arr in enumerate(final_matrix):
             for index, item in enumerate(curr_arr):
+                if index >= len(final_array):
+                    final_array.append({})
                 chromosomes = final_array[index].get("chromosomes", [])
                 chromosome = {**self.arr_n[i], "gens": item}
 
                 chromosomes.append(chromosome)
                 final_array[index]["chromosomes"] = chromosomes
         return final_array
+
+    @staticmethod
+    def calc_match(population):
+        for p in population:
+            chromosomes = p["chromosomes"]
+            gens = [chromosome["gens"] for chromosome in chromosomes]
+            gens = [bin_to_dec(g) for g in gens]
+            gens = [
+                normalize_x(item, chromosomes[index]["a"], chromosomes[index]["b"], chromosomes[index]["m"])
+                for index, item in enumerate(gens)
+            ]
+
+            p["eval"] = rastrigin(gens)
+        return population
