@@ -1,6 +1,7 @@
 from operators import Mutation, Inversion, KPointCrossover, UniformCrossover
 from population import Population
-from selects import RouletteMethod
+from selects import RouletteMethod, RankingMethod
+from succession import TriviaSuccession, PartialSuccession, EliteSuccession, RandomSuccession, CompressionSuccession
 
 
 def debug_population(population) -> None:
@@ -21,20 +22,24 @@ def main():
             {"a": -2, "b": 2, "d": 7},
             {"a": -3, "b": 0, "d": 3},
         ],
-        "select_method": RouletteMethod,
+        "is_min": False,
+        "select_method": RankingMethod,
         "select_options": {
-            "is_min": False,
             "without_return": False
         },
         "operators": [
             Mutation,
             Inversion,
-            KPointCrossover,
             UniformCrossover
         ],
         "operators_options": {
             "k": None
-        }
+        },
+        # "succession": TriviaSuccession,
+        # "succession": PartialSuccession,
+        # "succession": EliteSuccession,
+        # "succession": CompressionSuccession,
+        "succession": RandomSuccession,
     }
 
     # Generate population
@@ -42,23 +47,31 @@ def main():
     # Calculate match
     population = Population.calc_match(population)
 
-    # Select children
-    select_method = options.get("select_method", RouletteMethod)
-    select_options = options.get("select_options", {})
-    select = select_method(population, **select_options)
-    population = select.execute()
+    is_min = options.get("is_min", False)
 
-    # Genetic operators
-    children = []
-    for operator in options.get("operators", []):
-        operator_options = options.get("operator_options", {})
-        instance = operator(population, **operator_options)
-        executed = instance.execute()
-        children += executed
+    for epoch in range(1000):
+        # print("Epoch:", epoch)
+        # Select children
+        select_method = options.get("select_method", RouletteMethod)
+        select_options = options.get("select_options", {})
+        select = select_method(population, is_min, **select_options)
+        selected_population = select.execute()
 
-    # Succession
+        # Genetic operators
+        children = []
+        for operator in options.get("operators", []):
+            operator_options = options.get("operator_options", {})
+            operator_instance = operator(selected_population, **operator_options)
+            executed = operator_instance.execute()
+            executed = Population.calc_match(executed)
+            children += executed
 
-    # [print(p) for p in population]
+        # Succession
+        succession = options.get("succession", TriviaSuccession)
+        succession_instance = succession(parents=population, children=children, is_min=is_min)
+        population = succession_instance.execute()
+
+    [print(p) for p in population]
 
 
 if __name__ == "__main__":

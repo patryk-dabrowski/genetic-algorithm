@@ -64,11 +64,18 @@ class Crossover:
         self.pairs = []
 
     def select_pairs(self):
-        chosen = list(filter(lambda _: random.random() >= self.pk, self.population))
-        self.population = list(filter(lambda p: p not in chosen, self.population))
+        chosen = []
+        other_population = []
+
+        for p in self.population:
+            r = random.random()
+            if r >= self.pk:
+                chosen.append(p)
+            else:
+                other_population.append(p)
         if len(chosen) % 2:
-            r = random.randint(0, len(self.population) - 1)
-            chosen.append(self.population.pop(r))
+            r = random.randint(0, len(other_population) - 1)
+            chosen.append(other_population.pop(r))
         while len(chosen):
             first_chromosome = chosen.pop(0)
             r = random.randint(0, len(chosen) - 1)
