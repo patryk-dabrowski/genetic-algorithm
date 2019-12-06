@@ -3,7 +3,7 @@ import random
 
 
 class Mutation:
-    def __init__(self, population):
+    def __init__(self, population, *args, **kwargs):
         self.population = population
         self.pm = 0.1
 
@@ -27,7 +27,7 @@ class Mutation:
 
 
 class Inversion:
-    def __init__(self, population):
+    def __init__(self, population, *args, **kwargs):
         self.population = population
         self.pi = 0.1
 

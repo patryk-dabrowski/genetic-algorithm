@@ -1,9 +1,10 @@
 import random
+import copy
 
 
 class Methods:
     def __init__(self, population: list, is_min: bool = False, *args, **kwargs):
-        self.population = population
+        self.population = copy.deepcopy(population)
         self.is_min = is_min
         self.il = len(population)
 
@@ -77,10 +78,10 @@ class TournamentMethod(Methods):
         while len(out) < self.il:
             group = []
             while len(group) < j:
-                rand_index = random.choice(range(self.il))
+                rand_index = random.randint(0, self.il - 1)
                 single_person = self.population[rand_index]
                 if not self.without_return or (self.without_return and single_person not in group):
                     group.append(single_person)
             chosen_person = min(group, key=lambda p: p["eval"]) if self.is_min else max(group, key=lambda p: p["eval"])
             out.append(chosen_person)
-        return [{"eval": o["eval"], "chromosomes": o["chromosomes"]} for o in out]
+        return out
